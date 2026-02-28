@@ -32,20 +32,19 @@ Two folders with same names can exist due to difference in identification given 
 # Demo photos
 
 ### Login page
-[!image](https://github.com/user-attachments/assets/2992328c-a1d5-492c-a02c-75083e2e7102)
+![image](https://github.com/user-attachments/assets/2992328c-a1d5-492c-a02c-75083e2e7102)
 
 ### Home page with files
-[!image](https://github.com/user-attachments/assets/e1750deb-167e-45c2-a3d7-1e28e3b14b7a)
+![image](https://github.com/user-attachments/assets/e1750deb-167e-45c2-a3d7-1e28e3b14b7a)
 
 ### Individual file info display page
-[!image](https://github.com/user-attachments/assets/e07835ef-334d-449e-9d2e-aa71338d39de)
+![image](https://github.com/user-attachments/assets/e07835ef-334d-449e-9d2e-aa71338d39de)
 
 ### Share folder page
-[!image](https://github.com/user-attachments/assets/656ce32e-edbd-4f6f-871a-650ca07f9013)
+![image](https://github.com/user-attachments/assets/656ce32e-edbd-4f6f-871a-650ca07f9013)
 
 ### Generated link
-[!image](https://github.com/user-attachments/assets/1a3153ea-64e9-4f7e-803c-1ee03e4a78bc)
-
+![image](https://github.com/user-attachments/assets/1a3153ea-64e9-4f7e-803c-1ee03e4a78bc)
 
 ### Website when visited with the unexpired shared link
-[!image](https://github.com/user-attachments/assets/34781a6b-5f98-46eb-becf-2a5efce00e8d)
+![image](https://github.com/user-attachments/assets/34781a6b-5f98-46eb-becf-2a5efce00e8d)
