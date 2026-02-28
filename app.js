@@ -50,7 +50,7 @@ app.use('/auth', authRouter);
 app.use('/folders', indexRouter);
 app.use('/', 
   (req, res) => {
-    res.redirect('/folders');
+    res.redirect('/auth/login');
   }
 );
 
