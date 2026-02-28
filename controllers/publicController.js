@@ -25,10 +25,6 @@ const getCrumbs = async (folder) => {
 };
 
 const getFolderInfo = async (req, res) => {
-    console.log('GET PUBLIC INFO');
-    // console.log('params:');
-    // console.log(req.params);
-
     try {
         const folder = await prisma.folder.findUnique({
             where: { id: parseInt(req.params.id) },
@@ -39,7 +35,6 @@ const getFolderInfo = async (req, res) => {
         });
 
         if (typeof req.params.id === 'number') originalSharedFolder = { id: folder.id, title: folder.title };
-        
         const crumbsPath = await getCrumbs(folder);
 
         res.render('public', {
@@ -59,13 +54,8 @@ const getFolderInfo = async (req, res) => {
 };
 
 const getFile = async (req, res) => {
-    console.log('PUBLIC GET FILE');
-    // console.log(req.params);
-    // console.log(req.url);
     try {
         const file = await prisma.file.findUnique({ where: { id: parseInt(req.params.id) } });
-        // console.log(file);
-
         res.render('file-related/view', {
             title: `${file.originalName} | Personal Storage`,
             file,

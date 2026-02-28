@@ -17,30 +17,22 @@ const validateRename = [
 
 // additional neccessary functions
 const deleteChildFolders = async (arrayOfChildFolders) => {
-  console.log('IN DELETE CHILDREN FUNCTION');
 
   // repeat for all children folders of folder we wanna delete
   arrayOfChildFolders.map(async(folder) => {
     // log the child folder, along with its subfolders and files
-    console.log(folder);
     let childFolder = await prisma.folder.findUnique({ 
       where: { id: folder.id },
       include: { childrenFolders: true, files: true, }
     });
-    // console.log('child folder');
-    // console.log(childFolder);
 
     // if child folder has subfolders on itws own, repeat process
     if (childFolder.childrenFolders.length) await deleteChildFolders(childFolder.childrenFolders);
 
     // if child folder has files, delete them
     if (childFolder.files.length) {
-      // console.log('---------------');
-      // console.log('deleting files:');
       const files = childFolder.files;
-      // console.log(childFolder.files);
       files.map(async(file) => {
-        // console.log(file);
         await dltFileFunction(file, file.id);
       });
     };
@@ -82,15 +74,10 @@ const timeStampFileCreation = () => {
 const dltFileFunction = async (file, id) => {
   let assetsPath;
   try {
-    console.log('to be deleted');
-    console.log(file);
-    console.log(__dirname);
     if(__dirname.includes('controllers')) {
       const index = __dirname.indexOf('controllers');
       assetsPath = `${__dirname.substring(0, index)}public\\user_files\\${file.newFileName}`;
     };
-    console.log('assetdpath:');
-    console.log(assetsPath);
     fs.unlink(assetsPath, function (err) {
       if (err) console.error(`Error while unlinking a file. ${err}`);
     });
@@ -102,7 +89,6 @@ const dltFileFunction = async (file, id) => {
 
 // actual middleware
 const getHomepage = async (req, res) => {
-  console.log('GET HOME');
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.session.passport.user.id },
@@ -134,11 +120,7 @@ const getHomepage = async (req, res) => {
 };
 
 const postNewFolder = async (req, res) => {
-  console.log('---------------------------------');
-  console.log("NEW FOLDER:");
-
   try {
-    // specific folder directory
     if (req.params.id > 0) { 
       await prisma.folder.update({
         where: { id: parseInt(req.params.id) },
@@ -158,7 +140,6 @@ const postNewFolder = async (req, res) => {
 
       res.redirect(`/folders/${req.params.id}`);
     } else {
-      // in home directory
       await prisma.folder.create({
         data: {
           added: timeStampFolderCreation(),
@@ -173,9 +154,7 @@ const postNewFolder = async (req, res) => {
 };
 
 const getViewFolder = async (req, res) => {
-  console.log('GET FOLDER');
   try {
-    console.log(req.params.id);
     if (req.params.id != 0) {
       const folder = await prisma.folder.findUnique({
         where: { id: parseInt(req.params.id) },
@@ -202,7 +181,6 @@ const getViewFolder = async (req, res) => {
 };
 
 const getUpdate = async (req, res) => {
-  console.log('GET UDPATE');
   const folder = await prisma.folder.findUnique({ where: { id: parseInt(req.params.id) } });
   try {
     res.render('folder-related/edit', {
@@ -219,8 +197,6 @@ const getUpdate = async (req, res) => {
 const postUpdate = [
   validateRename,
   async (req, res) => {
-    console.log('POST RENAME');
-
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
       const folder = await prisma.folder.findUnique({ where: { id: parseInt(req.params.id) } });
@@ -247,7 +223,6 @@ const postUpdate = [
 ];
 
 const getDltFolder = async (req, res) => {
-  console.log('DEL FOLDER');
   try {
     const folderToDlt = await prisma.folder.findUnique({ 
       where: { id: parseInt(req.params.id) },
@@ -269,7 +244,6 @@ const getDltFolder = async (req, res) => {
 };
 
 const getNewFile = (req, res) => {
-  console.log('GET NEW FILE');
   try {
     res.render('file-related/new', {
       title: 'New file | Personal Storage',
@@ -283,7 +257,6 @@ const getNewFile = (req, res) => {
 
 const postNewFile = async (req, res) => {
   try {
-    console.log('POST FILE');
     if (req.err) {
       return res.status(400).render('file-related/new', {
         title: 'New file | Personal Storage',
@@ -332,9 +305,6 @@ const postNewFile = async (req, res) => {
           authorId: req.session.passport.user.id,
         }
       });
-
-      console.log('results no folder:');
-      console.log(results);
       res.redirect('/folders');
     };
   } catch (err) {
@@ -343,12 +313,8 @@ const postNewFile = async (req, res) => {
 };
 
 const getViewFile = async (req, res) => {
-  console.log('GET FILE');
   try {
     const file = await prisma.file.findUnique({ where: { id: parseInt(req.params.id) } });
-
-    console.log(file);
-
     res.render('file-related/view', {
       title: `${file.originalName} | Personal Storage`,
       file,
@@ -364,10 +330,8 @@ const getViewFile = async (req, res) => {
 };
 
 const getDltFile = async (req, res) => {
-  console.log('GET DLT FILE');
   try {
     const fileToDlt = await prisma.file.findUnique({ where: { id: parseInt(req.params.id) } });
-    console.log(fileToDlt);
     if (fileToDlt.folderId) {
       await prisma.folder.update({
         where: { id: fileToDlt.folderId },
@@ -376,7 +340,6 @@ const getDltFile = async (req, res) => {
     };
 
     const id = fileToDlt.folderId;
-    // console.log(fileToDlt);
     await dltFileFunction(fileToDlt, req.params.id);
     id ? res.redirect(`/folders/${id}`) : res.redirect("/folders");
 
@@ -386,7 +349,6 @@ const getDltFile = async (req, res) => {
 };
 
 const getShare = async (req, res) => {
-  console.log('GET SHARE');
   const folder = await prisma.folder.findUnique({ where: { id: parseInt(req.params.id) } });
   try {
     res.render('folder-related/share', {
@@ -401,28 +363,17 @@ const getShare = async (req, res) => {
 };
 
 const postShare = async (req, res) => {
-  console.log('POST GET LINK');
-  console.log(req.params);
-  console.log(req.body);
   try {
     const folder = await prisma.folder.findUnique({ where: { id: parseInt(req.params.id) } });
-    // console.log('http://' + hostname );
-    // console.log(req.url);
-
     const result = JSON.stringify({
       folderId: folder.id,
       expiresAt: addHours(new Date(), parseInt(req.body.duration))
     });
-    console.log('result of json:');
-    console.log(result);
-
+    
     const buffer = Buffer.from(result, 'utf-8');
     const encodedString = buffer.toString('base64');
-
-    console.log(`Encoded: ${encodedString}`);
-    var hostname = req.headers.host; // hostname = 'localhost:8080'
+    var hostname = req.headers.host; 
     const link = `http://${hostname}/public/${encodedString}`;
-    console.log(link);
 
     res.render('folder-related/generated-link', {
       title: 'Share folder | Personal Storage',

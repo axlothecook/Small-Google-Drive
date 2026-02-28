@@ -5,7 +5,6 @@ const multer = require('multer');
 var timeout = require('connect-timeout');
 
 const myAuthenticatedMiddleware = (req, res, next) => {
-  console.log('AUTHENTICATION');
   if (req.session.passport && req.session.passport.user) return next();
   res.redirect('/auth/login');
 };
@@ -29,8 +28,6 @@ const fileStorage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  console.log('file.mimetype:');
-  console.log(file);
   ( file.mimetype === 'image/png' || 
     file.mimetype === 'image/jpg' || 
     file.mimetype === 'image/jpeg' ||

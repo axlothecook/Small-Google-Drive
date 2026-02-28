@@ -20,8 +20,6 @@ const validateUser = [
       const user = await prisma.user.findFirst({ 
         where: { username: username },
       });
-      console.log('user returned:');
-      console.log(user);
 
       if (user) return Promise.reject('This username is unavailable');
     } catch (error) {
@@ -75,7 +73,6 @@ passport.deserializeUser(async (user, done) => {
 
 // GET SIGN UP
 const getSignUpForm = (req, res) => {
-  console.log('got signup form')
   res.render('signup', {
     title: 'Sign up',
     errors: null
@@ -86,21 +83,16 @@ const getSignUpForm = (req, res) => {
 const postSignUpForm = [
   validateUser,
   async (req, res, next) => {
-    console.log('POST SIGNUP')
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
-        console.log('sign up error');
-        console.log(errors.array())
       return res.status(400).render('signup', {
         title: 'Sign up',
         errors: errors.array()
       });
     };
 
-    console.log('USER TO BE CREATED')
     try {
       const { username, password } = matchedData(req);
-      console.log('password: ' + password);
       const hashedPassword = await bcrypt.hash(password, 10);
       const newUser = await prisma.user.create({
         data: {
@@ -113,8 +105,6 @@ const postSignUpForm = [
         },
       });
 
-      console.log('results:');
-      console.log(newUser);
       res.redirect("/folders");
     } catch(err) {
       return next(err);
@@ -124,7 +114,6 @@ const postSignUpForm = [
 
 // GET LOG IN
 const getLogInForm = (req, res) => {
-  console.log('GET LOGIN FORM');
   let errors = [];
   if (req.query.err === 'expired') {
     errors = [
@@ -143,9 +132,6 @@ const getLogInForm = (req, res) => {
 // POST LOG IN 
 const postLogInForm = (req, res) => {
   passport.authenticate("local", (err, user, options) => {
-    // console.log('user received:');
-    // console.log(user);
-
     if (user) {
       req.login(user, (error) => {
         error ? res.send(error) : res.redirect('/folders');
@@ -161,7 +147,6 @@ const postLogInForm = (req, res) => {
 };
 
 const getLogOutForm = async (req, res, next) => {
-  console.log('GET LOG OUT');
   req.logout((err) => {
     if (err) {
       return next(err);

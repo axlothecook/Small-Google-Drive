@@ -21,7 +21,7 @@
   "homepage": "https://github.com/axlothecook/db-based-projects-template#readme",
   "dependencies": {
     "@prisma/adapter-pg": "^7.3.0",
-    "@prisma/client": "^7.4.0",
+    "@prisma/client": "^7.4.2",
     "@quixo3/prisma-session-store": "^3.1.19",
     "bcryptjs": "^3.0.3",
     "connect-timeout": "^1.9.1",
@@ -40,6 +40,6 @@
     "pg": "^8.17.1"
   },
   "devDependencies": {
-    "prisma": "^7.4.0"
+    "prisma": "^7.4.2"
   }
 }

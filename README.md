@@ -1,1 +1,57 @@
-# >w<
+# Small Google Drive
+<hr> 
+### Small imitation of Google Drive that serves as a personal storage. 
+
+## Tools & services used
+<hr> 
+Node.js for server hosting and management
+Postgres as database
+Prisma ORM as database management system
+Standard CSS for styling
+EJS for template generation (html)
+Morgan for logging paths in terminal
+Nodemon for automatic restaring of the app
+Express validator for form data submission sanitanization
+Multer for file submission
+Passport.js for user authentication
+bcryptjs for password encryption
+[prisma-session-store](https://github.com/kleydon/prisma-session-store.git) for user session persistance in db
+date-fns for date formatting
+[connect-timeout](https://github.com/expressjs/timeout#readme) for emitting a 'timeout' in routing middleware
+
+## What's the project's purpose?
+<hr>
+User is able to create an account and log in whenever. During his visit he can create, rename (update), delete and share folders with unauthenticated users. The user can also add, download and delete files and folders with folders and/or files within.
+
+## How does a user share a folder?
+<hr>
+By clicking the 'Share' button on a folder, user is prompted to select the duration of the link during which link can be used and after which it expires. After the link is generated the user can copy it and share it with anyone. When used, the visitor will be brought to a version of the website showing shared folder's content while not needing the visitor to be authenticated.
+
+## How does the project deal with the conflict of the user uploading multiple instances of the same file?
+<hr>
+Every file uploaded gets renamed, with a random generated number added to the name, therefore eliminating any possibility of naming conflict.
+
+## Any conflict with folder naming?
+<hr>
+Two folders with same names can exist due to difference in identification given to each one.
+
+# Demo photos
+<hr>
+
+### Login page
+[!image]()
+
+### Home page with files
+[!image]()
+
+### Individual file info display page
+[!image]()
+
+### Share folder page
+[!image]()
+
+### Page with generated link
+[!image]()
+
+### Website when visited with the unexpired shared link
+[!image]()
