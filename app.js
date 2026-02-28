@@ -63,7 +63,7 @@ app.use((req, res) => {
   res.status(404).sendFile('/public/404.html', { root: __dirname });
 });
 
-const PORT = process.env.NODE_ENV_PORT_LOCALHOST || 3005;
+const PORT = process.env.NODE_ENV_PORT || 3005;
 app.listen(PORT, (error) => {
   if (error) throw error;
   console.log(`The app launched is listening on port ${PORT}!`);
