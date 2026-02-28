@@ -2,20 +2,20 @@
 ## Small imitation of Google Drive that serves as a personal storage. 
 
 ## Tools & services used
-Node.js for server hosting and management
-Postgres as database
-Prisma ORM as database management system
-Standard CSS for styling
-EJS for template generation (html)
-Morgan for logging paths in terminal
-Nodemon for automatic restaring of the app
-Express validator for form data submission sanitanization
-Multer for file submission
-Passport.js for user authentication
-bcryptjs for password encryption
-[prisma-session-store](https://github.com/kleydon/prisma-session-store.git) for user session persistance in db
-date-fns for date formatting
-[connect-timeout](https://github.com/expressjs/timeout#readme) for emitting a 'timeout' in routing middleware
+Node.js for server hosting and management </br>
+Postgres as database </br>
+Prisma ORM as database management system </br>
+Standard CSS for styling </br>
+EJS for template generation (html) </br>
+Morgan for logging paths in terminal </br>
+Nodemon for automatic restaring of the app </br>
+Express validator for form data submission sanitanization </br>
+Multer for file submission </br>
+Passport.js for user authentication </br>
+bcryptjs for password encryption </br>
+[prisma-session-store](https://github.com/kleydon/prisma-session-store.git) for user session persistance in db </br>
+date-fns for date formatting </br>
+[connect-timeout](https://github.com/expressjs/timeout#readme) for emitting a 'timeout' in routing middleware </br>
 
 ## What's the project's purpose?
 User is able to create an account and log in whenever. During his visit he can create, rename (update), delete and share folders with unauthenticated users. The user can also add, download and delete files and folders with folders and/or files within.
