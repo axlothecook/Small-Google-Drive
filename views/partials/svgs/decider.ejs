@@ -1,0 +1,29 @@
+<% if (type.includes('folder')) { %>
+    <%- include('small-icons/folder') %>
+<% } else if (type.includes('html') || type.includes('css') || type.includes('javascript')) { %>
+    <%- include('small-icons/code') %>
+<% } else if (type.includes('plain')) { %>
+    <%- include('small-icons/plain') %>
+<% } else if (type.includes('image')) { %>
+    <%- include('small-icons/image') %>
+<% } else if (type.includes('audio')) { %>
+    <%- include('small-icons/audio') %>
+<% } else if (type.includes('pdf')) { %>
+    <%- include('small-icons/pdf') %> 
+<% } else if (name.includes('otf') || name.includes('ttf') || name.includes('woff') || name.includes('woff2')) { %>
+    <%- include('small-icons/font') %>
+<% } else if (type.includes('word')) { %> 
+    <%- include('small-icons/document') %>
+<% } else if (type.includes('video')) { %>
+    <%- include('small-icons/video') %>
+<% } else if (type.includes('model')) { %>
+    <%- include('small-icons/model') %>
+<% } else if (type.includes('zip')) { %>
+    <%- include('small-icons/zip', { classSpec: 'item-icon' }) %>
+<% } else if (type.includes('sheet') || name.includes('ods')) { %>
+    <%- include('small-icons/excel') %>
+<% } else if (type.includes('presentation')) { %>
+    <%- include('small-icons/presentation') %>
+<% } else { %>
+    <%- include('small-icons/undefinedType') %>
+<% } %>

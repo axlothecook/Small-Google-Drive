@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/svgs.css">
+    <title><%= title %></title>
+    <link rel="icon" href="/favicon.svg" type="image/x-icon">
+</head>
+<body>
+    <div class="global-wrapper">
+        <%- include('../partials/topbar/logged-in') %>
+        <div class="content">
+            <div class="file-wrapper">
+                <%- include('../partials/go-back-btn', { parentFolderId, linkRoute: 'folders' }) %>
+                <div class="smaller-content">
+                    <div class="generated-link-content">
+                        <h2>Link generated!</h2>
+                        <input type="text" value="<%= link %>" id="generated-link" />
+                        <div class="generated-link-options-btns">
+                            <a class="btn wider-btn" href="/folders/<%= parentFolderId %>">Finish</a>
+                            <button id="copy-link-btn" class="btn wider-btn">Copy Link</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const btn = document.querySelector('#copy-link-btn');
+
+        const copyToClipboard = (text) => {
+            const x = document.createElement('textarea');
+            x.value = text;
+            document.body.appendChild(x);
+            x.select();
+            document.execCommand('copy');
+            document.body.removeChild(x);
+        };
+        
+        btn.addEventListener('click', async (e) => {
+            const input = document.querySelector('#generated-link');
+            await copyToClipboard(input.value);
+            btn.textContent = 'Copied!';
+        });
+    </script>
+</body>
+</html>

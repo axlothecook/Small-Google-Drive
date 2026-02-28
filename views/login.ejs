@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/svgs.css">
+    <title><%= title %></title>
+    <link rel="icon" href="/favicon.svg" type="image/x-icon">
+</head>
+<body>
+    <div class="global-wrapper">
+        <%- include('partials/topbar/logged-out') %>
+        <% if (errors && errors.length !== 0) { %>
+            <%- include('partials/errors', { errors }) %>
+        <% } %>
+        <div class="content login-content">
+            <form class="form-with-border lesser-gap-form" action="/auth/login" method="POST">
+                <h2>Log in</h2>
+                <div>
+                    <label for="username">Username</label>
+                    <input id="username" name="username" type="text" autocomplete="off" required />
+                    <% if(warning && warning.includes('username')) { %>
+                        <p><%= warning %></p>
+                    <% } %>
+                </div>
+                <div>
+                    <label for="password">Password</label>
+                    <input id="password" name="password" type="password" autocomplete="off" required />
+                    <% if(warning && warning.includes('password')) { %>
+                        <p><%= warning %></p>
+                    <% } %>
+                </div>
+                <a href="/auth/signup" class="login-signup-link">
+                    <h4>Don't have an account yet? <span>Sign up</span></h4>
+                </a>
+                <button type="submit" class="btn wider-btn">Log in</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

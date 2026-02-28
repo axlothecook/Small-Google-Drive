@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/svgs.css">
+    <title>Error | Personal Storage</title>
+    <link rel="icon" href="/favicon.svg" type="image/x-icon">
+</head>
+<body>
+    <div class="global-wrapper">
+        <%- include('partials/topbar/logged-in') %>
+        <div class="content error-content">
+            <h1><%= status %> Error :(</h1>
+            <div>
+                <h2>Message:</h2>
+                <div id="err-msg-wrapper">
+                    <h4><%= msg %></h4>
+                </div>
+                <a href="/folders" class="btn wider-btn">Home</a>
+            </div>
+        </div>
+    </div>
+</body>

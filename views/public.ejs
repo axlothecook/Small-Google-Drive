@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/svgs.css">
+    <title><%= title %></title>
+    <link rel="icon" href="/favicon.svg" type="image/x-icon">
+</head>
+<body>
+    <div class="global-wrapper">
+        <%- include('partials/topbar/logged-out') %>
+        <div class="content homepage-content">
+            <ul><h4>Folder shared via public link</h4></ul>
+            <div class="main-content">
+                <%- include('partials/crumbs', { username, crumbsPath, linkRoute }) %>
+                <div class="table-wrapper">
+                    <div class="table-column-titles">
+                        <h4>Name</h4>
+                        <h4>Size</h4>
+                        <h4>Number of files</h4>
+                        <h4>Added</h4>
+                    </div>
+                    <div class="table-items">
+                        <% if(folders && folders.length) { %>
+                            <% for (let i = (folders.length - 1); i >= 0; i--) { %>
+                                <%- include('partials/item', { item: folders[i], type: 'folder', path: folders[i].id, linkRoute }) %>
+                            <% } %>
+                        <% } %>
+
+                        <% if(files && files.length) { %>
+                            <% for (let i = (files.length - 1); i >= 0; i--) { %>
+                                <%- include('partials/item', { item: files[i], type: files[i].type, path: `${id}/files/${files[i].id}`, linkRoute }) %>
+                            <% } %>
+                        <% } %>
+
+                        <% if (!folders.length && !files.length) { %>
+                            <h3>No files or folders to display</h3>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

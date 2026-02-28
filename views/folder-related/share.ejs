@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/svgs.css">
+    <title><%= title %></title>
+    <link rel="icon" href="/favicon.svg" type="image/x-icon">
+</head>
+<body>
+    <div class="global-wrapper">
+        <%- include('../partials/topbar/logged-in') %>
+        <div class="content">
+            <div class="file-wrapper share-folder-wrapper">
+                <%- include('../partials/go-back-btn', { parentFolderId, linkRoute: 'folders' }) %>
+                <div class="content smaller-content">
+                    <form class="form-with-border" action="/folders/<%= id %>/share" method="POST">
+                        <span>
+                            <h2>Share Folder <i><%= folderName %></i></h2>
+                            <h4><i>Generate a public link to share the current folder and its contents</i></h4>
+                        </span>
+                        <div class="fieldset-wrapper">
+                            <h3>Duration</h3>
+                            <fieldset>
+                                <label for="1hour">
+                                    <input id="1hour" name="duration" type="radio" value="1" />
+                                    <div>1 hour</div>
+                                </label>
+                                <label for="3hours">
+                                    <input id="3hours" name="duration" type="radio" value="3" />
+                                    <div>3 hours</div>
+                                </label>
+                                <label for="24Hours">
+                                    <input id="24hours" name="duration" type="radio" value="24" />
+                                    <div>1 day</div>
+                                </label>
+                                <label for="72hours">
+                                    <input id="72hours" name="duration" type="radio" value="72" checked />
+                                    <div>3 days</div>
+                                </label>
+                                <label for="168hours">
+                                    <input id="168hours" name="duration" type="radio" value="168" />
+                                    <div>1 week</div>
+                                </label>
+                            </fieldset>
+                            <p>Links will expire after the specified duration</p>
+                        </div>
+                        <div class="share-folder-btns">
+                            <a class="btn wider-btn" href="/folders/<%= parentFolderId %>">Cancel</a>
+                            <button type="submit" class="btn wider-btn">Generate Link</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

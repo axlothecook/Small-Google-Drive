@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "File" ALTER COLUMN "added" SET DATA TYPE TEXT;
+
+-- AlterTable
+ALTER TABLE "Folder" ALTER COLUMN "added" SET DATA TYPE TEXT;

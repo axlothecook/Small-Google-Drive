@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/svgs.css">
+    <title><%= title %></title>
+    <link rel="icon" href="/favicon.svg" type="image/x-icon">
+</head>
+<body>
+    <div class="global-wrapper">
+        <%- include('../partials/topbar/logged-in') %>
+        <% if (errors && errors.length !== 0) { %>
+            <%- include('../partials/errors', { errors }) %>
+        <% } %>
+        <div class="content">
+            <div class="file-wrapper">
+                <%- include('../partials/go-back-btn', { parentFolderId, linkRoute: 'folders' }) %>
+                <div class="smaller-content">
+                    <form
+                        class="form-with-border" 
+                        action="/folders/<%= parentFolderId %>/files/new" 
+                        method="POST" 
+                        enctype="multipart/form-data"
+                    >
+                        <h2>Add a new file</h2>
+                        <div>
+                            <input id="file" name="file" type="file" id="fileSelector" required />
+                            <p class="max-size-p" id="warning-p">Max size: <b>50MB</b></p>
+                        </div>
+                        <button type="submit" class="btn wider-btn" id="upload-btn">Upload</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fileSelector = document.querySelector('input[type=file]');
+        const warning = document.querySelector('#warning-p');
+        const uploadBtn = document.querySelector('#upload-btn');
+        fileSelector.addEventListener("change", e => {
+            if (e.target.files.length) {
+                const file = e.target.files[0];
+                const maxFileSize = 53477376; // ~50MG
+                const boldText = document.createElement('b');
+                boldText.textContent = '50MG';
+                if (file.size > maxFileSize) {
+                    warning.textContent = `File size limit exceeded: ${Math.round(file.size / 1048576)}MG`;
+                    warning.style.color = 'red';
+                    fileSelector.setCustomValidity(' ');
+                    fileSelector.reportValidity();
+                } else {
+                    fileSelector.setCustomValidity('');
+                    warning.textContent = `Max size: `;
+                    warning.appendChild(boldText);
+                    warning.style.color = '#e28029';
+                };
+            };
+        });
+
+        uploadBtn.addEventListener('click', (e) => {
+            uploadBtn.disabled = false;
+            setTimeout(() => {
+                uploadBtn.disabled = true;
+            }, 30);
+            setTimeout(() => {
+                uploadBtn.disabled = false;
+            }, 2000);
+        })
+    </script>
+</body>
+</html>

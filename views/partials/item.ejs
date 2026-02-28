@@ -1,0 +1,25 @@
+<div class="item">
+    <a href="/<%=linkRoute %>/<%= path %>" class="wrapper-link">
+        <div class="item-name">
+            <%- include('svgs/decider', { type, name: item.originalName }) %>
+            <% if (item.title) { %>
+                <h5 class="item-name-for-overflow"><%= item.title %></h5>
+            <% } else { %>
+                <h5 class="item-name-for-overflow"><%= item.originalName %></h5>
+            <% } %>
+        </div>
+        <h5>
+            <% if (type === 'folder') { %>
+                --
+            <% } else { %>
+                <%= item.size %>
+            <% } %>
+        </h5>
+        <h5><%= item.numberOfFiles %></h5>
+        <h5><%= item.added %></h5>
+    </a>
+    <% if (linkRoute === 'folders' && type === 'folder') { %>
+        <%- include('edit-folder-btns', { id: item.id }) %>
+    <% } %>
+</div>
+

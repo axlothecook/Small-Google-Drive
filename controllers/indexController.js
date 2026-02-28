@@ -1,19 +1,460 @@
-//don't forget to add .env file
+const prisma = require('../lib/prisma.js');
+const { format, addHours } = require('date-fns');
+const {
+  body,
+  validationResult,
+  matchedData
+} = require('express-validator');
+var fs = require('fs');
 
-const db = require('../db/queries');
+const validateRename = [
+  body('name')
+  .trim()
+  .escape()
+  .isLength({ min: 2, max: 50 }).withMessage(`Folder name must be between 2 and 50 letters.`)
+  .matches(/^[A-Za-z0-9 ]+$/).withMessage('Folder name can only contain letters and numbers.'),
+];
 
-const { navLinks } = require('../data');
+// additional neccessary functions
+const deleteChildFolders = async (arrayOfChildFolders) => {
+  console.log('IN DELETE CHILDREN FUNCTION');
 
-const getHomepage = (req, res) => {
-    // const genreList = await db.getAllGenres();
+  // repeat for all children folders of folder we wanna delete
+  arrayOfChildFolders.map(async(folder) => {
+    // log the child folder, along with its subfolders and files
+    console.log(folder);
+    let childFolder = await prisma.folder.findUnique({ 
+      where: { id: folder.id },
+      include: { childrenFolders: true, files: true, }
+    });
+    // console.log('child folder');
+    // console.log(childFolder);
+
+    // if child folder has subfolders on itws own, repeat process
+    if (childFolder.childrenFolders.length) await deleteChildFolders(childFolder.childrenFolders);
+
+    // if child folder has files, delete them
+    if (childFolder.files.length) {
+      // console.log('---------------');
+      // console.log('deleting files:');
+      const files = childFolder.files;
+      // console.log(childFolder.files);
+      files.map(async(file) => {
+        // console.log(file);
+        await dltFileFunction(file, file.id);
+      });
+    };
+
+    // finally delete the child folder and return to previous function call
+    await prisma.folder.delete({ where: { id: childFolder.id } });
+  });
+  return;
+};
+
+const getCrumbs = async (folder) => {
+  let temp = folder;
+  let crumbsPath = [
+    {
+      id: temp.id,
+      name: temp.title
+    }
+  ];
+
+  while (temp.parentFolderId) {
+    temp = await prisma.folder.findUnique({ where: { id: temp.parentFolderId } });
+    crumbsPath.unshift({
+      id: temp.id,
+      name: temp.title
+    });
+  };
+
+  return crumbsPath;
+};
+
+const timeStampFolderCreation = () => {
+  return format(new Date(), 'MMMM dd, yyyy');
+};
+
+const timeStampFileCreation = () => {
+  return format(new Date(), 'MMMM dd, yyyy, hh:mm a');
+};
+
+const dltFileFunction = async (file, id) => {
+  let assetsPath;
+  try {
+    console.log('to be deleted');
+    console.log(file);
+    console.log(__dirname);
+    if(__dirname.includes('controllers')) {
+      const index = __dirname.indexOf('controllers');
+      assetsPath = `${__dirname.substring(0, index)}public\\user_files\\${file.newFileName}`;
+    };
+    console.log('assetdpath:');
+    console.log(assetsPath);
+    fs.unlink(assetsPath, function (err) {
+      if (err) console.error(`Error while unlinking a file. ${err}`);
+    });
+    await prisma.file.delete({ where: { id: parseInt(id) } });
+  } catch (err) {
+    return err;
+  };
+};
+
+// actual middleware
+const getHomepage = async (req, res) => {
+  console.log('GET HOME');
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.session.passport.user.id },
+      include: {
+        folders: {
+          where: {
+            parentFolderId: null,
+          }
+        },
+        files: {
+          where: {
+            folderId: null
+          }
+        },
+      },
+    });
 
     res.render('index', {
-        title: 'Authentication Practice',
-        navLinks,
-        errors: null
+      title: 'Home | Personal Storage',
+      username: user.username,
+      folders: user.folders,
+      files: user.files,
+      crumbsPath: [],
+      id: 0
     });
+  } catch (err) {
+    throw new Error(`Error when loading homepage. ${err}`);
+  };
+};
+
+const postNewFolder = async (req, res) => {
+  console.log('---------------------------------');
+  console.log("NEW FOLDER:");
+
+  try {
+    // specific folder directory
+    if (req.params.id > 0) { 
+      await prisma.folder.update({
+        where: { id: parseInt(req.params.id) },
+        data: { 
+          childrenFolders: {
+            create: [{
+              added: timeStampFolderCreation(),
+              authorId: req.session.passport.user.id,
+            }]
+          }
+        },
+        include: { 
+          childrenFolders: true,
+          files: true,
+        },
+      });
+
+      res.redirect(`/folders/${req.params.id}`);
+    } else {
+      // in home directory
+      await prisma.folder.create({
+        data: {
+          added: timeStampFolderCreation(),
+          authorId: req.session.passport.user.id,
+        }
+      });
+      res.redirect('/folders');
+    };
+  } catch (err) {
+    throw new Error(`Ooopsie! Error when creating a folder! ${err}`);
+  };
+};
+
+const getViewFolder = async (req, res) => {
+  console.log('GET FOLDER');
+  try {
+    console.log(req.params.id);
+    if (req.params.id != 0) {
+      const folder = await prisma.folder.findUnique({
+        where: { id: parseInt(req.params.id) },
+        include: { 
+          childrenFolders: true,
+          files: true,
+        },
+      });
+
+      const crumbsPath = await getCrumbs(folder);
+      res.render('index', {
+        title: `${folder.title} | Personal Storage`,
+        username: req.session.passport.user.username,
+        folders: folder.childrenFolders,
+        files: folder.files,
+        crumbsPath,
+        id: folder.id,
+        parentFolderId: folder.parentFolderId,
+      });
+    } else res.redirect('/folders');
+  } catch (err) {
+    throw new Error(`Error occured when loading folder data. ${err}`);
+  };
+};
+
+const getUpdate = async (req, res) => {
+  console.log('GET UDPATE');
+  const folder = await prisma.folder.findUnique({ where: { id: parseInt(req.params.id) } });
+  try {
+    res.render('folder-related/edit', {
+      title: 'Edit folder | Personal Storage',
+      id: req.params.id,
+      parentFolderId: folder.parentFolderId,
+      errors: null
+    });
+  } catch (err) {
+    throw new Error(`Error occured when displaying folder name to update. ${err}`);
+  };
+};
+
+const postUpdate = [
+  validateRename,
+  async (req, res) => {
+    console.log('POST RENAME');
+
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+      const folder = await prisma.folder.findUnique({ where: { id: parseInt(req.params.id) } });
+      return res.render('folder-related/edit', {
+        title: 'Edit folder | Personal Storage',
+        id: req.params.id,
+        parentFolderId: folder.parentFolderId, 
+        errors: errors.array()
+      });
+    };
+
+    try {
+      const { name } = matchedData(req);
+      const folder = await prisma.folder.update({
+        where: { id: parseInt(req.params.id) },
+        data: { title: name },
+      });
+
+      folder.parentFolderId ? res.redirect(`/folders/${folder.parentFolderId}`) : res.redirect("/folders");
+    } catch (err) {
+      return next(err);
+    };
+  }
+];
+
+const getDltFolder = async (req, res) => {
+  console.log('DEL FOLDER');
+  try {
+    const folderToDlt = await prisma.folder.findUnique({ 
+      where: { id: parseInt(req.params.id) },
+      include: {childrenFolders: true, files: true, }
+    });
+
+    if (folderToDlt.childrenFolders.length) await deleteChildFolders(folderToDlt.childrenFolders);
+    if (folderToDlt.files) folderToDlt.files.map(async(childFile) => await dltFileFunction(childFile, childFile.id));
+
+    const id = folderToDlt.parentFolderId;
+    await prisma.folder.delete({ where: { id: parseInt(req.params.id) } });
+    setTimeout(() => {
+      id ? res.redirect(`/folders/${id}`) : res.redirect("/folders");
+    }, 1000);
+
+  } catch (err) {
+    throw new Error(`Error when deleting a folder. ${err}`);
+  };
+};
+
+const getNewFile = (req, res) => {
+  console.log('GET NEW FILE');
+  try {
+    res.render('file-related/new', {
+      title: 'New file | Personal Storage',
+      parentFolderId: req.params.id ? req.params.id : 0,
+      errors: null
+    });
+  } catch (err) {
+    throw new Error(`Error occured when loading page to add new file. ${err}`);
+  };
+};
+
+const postNewFile = async (req, res) => {
+  try {
+    console.log('POST FILE');
+    if (req.err) {
+      return res.status(400).render('file-related/new', {
+        title: 'New file | Personal Storage',
+        id: req.params.id,
+        parentFolderId: req.params.id ? req.params.id : 0,
+        errors: [
+          {
+            msg: req.err.msg
+          }
+        ]
+      });
+    };
+
+    let fileSize;
+    if (req.file.size <= 1048576) {
+      (req.file.size <= 1024) ? fileSize = `${req.file.size} B` : fileSize = `${(req.file.size / 1024).toFixed(2)} KB`;
+    } else fileSize = `${(req.file.size / 1048576).toFixed(2)} MB`;
+    if (req.params.id > 0) {
+      await prisma.file.create({
+        data: {
+          originalName: req.file.originalname,
+          type: req.file.mimetype,
+          size: fileSize,
+          newFileName: req.file.filename,
+          added: timeStampFileCreation(),
+          authorId: req.session.passport.user.id,
+          folderId: parseInt(req.params.id),
+        }
+      });
+
+      await prisma.folder.update({
+        where: { id: parseInt(req.params.id) },
+        data: { numberOfFiles: { increment: 1 } },
+      });
+      
+      res.redirect(`/folders/${req.params.id}`);
+
+    } else {
+      let results = await prisma.file.create({
+        data: {
+          originalName: req.file.originalname,
+          type: req.file.mimetype,
+          size: fileSize,
+          newFileName: req.file.filename,
+          added: timeStampFileCreation(),
+          authorId: req.session.passport.user.id,
+        }
+      });
+
+      console.log('results no folder:');
+      console.log(results);
+      res.redirect('/folders');
+    };
+  } catch (err) {
+    throw new Error(`Oopsie! Error occured while uploading a file. ${err}`);
+  };
+};
+
+const getViewFile = async (req, res) => {
+  console.log('GET FILE');
+  try {
+    const file = await prisma.file.findUnique({ where: { id: parseInt(req.params.id) } });
+
+    console.log(file);
+
+    res.render('file-related/view', {
+      title: `${file.originalName} | Personal Storage`,
+      file,
+      isPublic: false,
+      linkRoute: `folders`,
+      imgURL: file.type.includes('image') ? `url(/user_files/${file.newFileName})` : null,
+      generalURL: `/user_files/${file.newFileName}`,
+      folderId: file.folderId ? file.folderId : 0
+    });
+  } catch (err) {
+    throw new Error(`Error occured when loading file data. ${err}`);
+  };
+};
+
+const getDltFile = async (req, res) => {
+  console.log('GET DLT FILE');
+  try {
+    const fileToDlt = await prisma.file.findUnique({ where: { id: parseInt(req.params.id) } });
+    console.log(fileToDlt);
+    if (fileToDlt.folderId) {
+      await prisma.folder.update({
+        where: { id: fileToDlt.folderId },
+        data: { numberOfFiles: { decrement: 1 } },
+      });
+    };
+
+    const id = fileToDlt.folderId;
+    // console.log(fileToDlt);
+    await dltFileFunction(fileToDlt, req.params.id);
+    id ? res.redirect(`/folders/${id}`) : res.redirect("/folders");
+
+  } catch (err) {
+    throw new Error(`Error when deleting a file. ${err}`);
+  };
+};
+
+const getShare = async (req, res) => {
+  console.log('GET SHARE');
+  const folder = await prisma.folder.findUnique({ where: { id: parseInt(req.params.id) } });
+  try {
+    res.render('folder-related/share', {
+      title: 'Share folder | Personal Storage',
+      folderName: folder.title,
+      id: req.params.id,
+      parentFolderId: folder.parentFolderId,
+    });
+  } catch (err) {
+    throw new Error(`Error occured when getting the share page. ${err}`);
+  };
+};
+
+const postShare = async (req, res) => {
+  console.log('POST GET LINK');
+  console.log(req.params);
+  console.log(req.body);
+  try {
+    const folder = await prisma.folder.findUnique({ where: { id: parseInt(req.params.id) } });
+    // console.log('http://' + hostname );
+    // console.log(req.url);
+
+    const result = JSON.stringify({
+      folderId: folder.id,
+      expiresAt: addHours(new Date(), parseInt(req.body.duration))
+    });
+    console.log('result of json:');
+    console.log(result);
+
+    const buffer = Buffer.from(result, 'utf-8');
+    const encodedString = buffer.toString('base64');
+
+    console.log(`Encoded: ${encodedString}`);
+    var hostname = req.headers.host; // hostname = 'localhost:8080'
+    const link = `http://${hostname}/public/${encodedString}`;
+    console.log(link);
+
+    res.render('folder-related/generated-link', {
+      title: 'Share folder | Personal Storage',
+      folderName: folder.title,
+      id: req.params.id,
+      parentFolderId: folder.parentFolderId,
+      link
+    });
+  } catch (err) {
+    throw new Error(`Error occured when generating link. ${err}`);
+  };
 };
 
 module.exports = {
-    getHomepage
-}
+  getHomepage,
+
+  postNewFolder,
+
+  getViewFolder,
+
+  getUpdate,
+  postUpdate,
+
+  getDltFolder,
+
+  getNewFile,
+  postNewFile,
+
+  getViewFile,
+
+  getDltFile,
+
+  getShare,
+  postShare
+};

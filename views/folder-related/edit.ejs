@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/svgs.css">
+    <title><%= title %></title>
+    <link rel="icon" href="/favicon.svg" type="image/x-icon">
+</head>
+<body>
+    <div class="global-wrapper">
+        <%- include('../partials/topbar/logged-in') %>
+        <% if (errors && errors.length !== 0) { %>
+            <%- include('../partials/errors', { errors }) %>
+        <% } %>
+        <div class="content">
+            <div class="file-wrapper">
+                <%- include('../partials/go-back-btn', { parentFolderId, linkRoute: 'folders' }) %>
+                <div class="content smaller-content">
+                    <form class="form-with-border" action="/folders/<%= id %>/update" method="POST">
+                        <h2>Edit Folder Name</h2>
+                        <div>
+                            <label for="name">New name</label>
+                            <input id="name" name="name" type="text" autocomplete="off" required />
+                        </div>
+                        <button type="submit" class="btn wider-btn">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

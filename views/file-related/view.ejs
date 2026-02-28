@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/svgs.css">
+    <title><%= title %></title>
+    <link rel="icon" href="/favicon.svg" type="image/x-icon">
+</head>
+<body>
+    <div class="global-wrapper">
+        <% if (isPublic) { %>
+            <%- include('../partials/topbar/logged-out') %>
+        <% } else { %>
+            <%- include('../partials/topbar/logged-in') %>
+        <% } %>
+        <div class="content file-content">
+            <div class="file-wrapper">
+                <%- include('../partials/go-back-btn', { parentFolderId: folderId, linkRoute }) %>
+                <div class="file-view-content">
+                    <%- include('../partials/file-type-template', { imgURL, generalURL, type: file.type, name: file.originalName }) %>
+                    <div class="info-w-options-wrapper">
+                        <div class="file-info-wrapper">
+                            <h3><b>Name:</b> <%= file.originalName %></h3>
+                            <h3><b>Type:</b> <%= file.type %></h3>
+                            <h3><b>Size:</b> <%= file.size %></h3>
+                            <h3><b>Created:</b> <%= file.added %></h3>
+                        </div>
+                        <div class="file-btn-options-wrapper">
+                            <% if (!isPublic) { %>
+                                <a href="/folders/<%= folderId %>/files/<%= file.id %>/delete" class="btn wider-btn">Delete</a>
+                            <% } %>
+                            <a href="<%= generalURL %>" class="btn wider-btn" download>Download</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<ul class="crumbs">
+    <li>
+        <a href="/<%= linkRoute %>">
+            <b><%= username %></b>
+        </a>
+    </li>
+    <% if (crumbsPath && crumbsPath.length) { %>
+        <% crumbsPath.forEach(folder => { %>
+            <li>
+                <%- include('svgs/crumbs-arrow') %>
+            </li>
+            <% if (folder.id == crumbsPath[crumbsPath.length - 1].id) { %>
+                <li class="current-folder-crumbs">
+                    <a href="/<%= linkRoute %>/<%= folder.id %>">
+                        <b><%= folder.name %></b>
+                    </a>
+                </li>
+            <% } else { %>
+                <li class="parent-folder-crumbs">
+                    <a href="/<%= linkRoute %>/<%= folder.id %>">
+                        <b><%= folder.name %></b>
+                    </a>
+                </li>
+            <% } %>
+        <% }) %>
+    <% } %>
+</ul>
