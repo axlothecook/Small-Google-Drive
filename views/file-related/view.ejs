@@ -19,7 +19,7 @@
             <div class="file-wrapper">
                 <%- include('../partials/go-back-btn', { parentFolderId: folderId, linkRoute }) %>
                 <div class="file-view-content">
-                    <%- include('../partials/file-type-template', { imgURL, generalURL, type: file.type, name: file.originalName }) %>
+                    <%- include('../partials/file-type-template', { imgPath: imgPath, url: file.url, type: file.type, name: file.originalName }) %>
                     <div class="info-w-options-wrapper">
                         <div class="file-info-wrapper">
                             <h3><b>Name:</b> <%= file.originalName %></h3>
@@ -31,7 +31,7 @@
                             <% if (!isPublic) { %>
                                 <a href="/folders/<%= folderId %>/files/<%= file.id %>/delete" class="btn wider-btn">Delete</a>
                             <% } %>
-                            <a href="<%= generalURL %>" class="btn wider-btn" download>Download</a>
+                            <a href="<%= file.url %>?download=<%= file.originalName %>" class="btn wider-btn">Download</a>
                         </div>
                     </div>
                 </div>

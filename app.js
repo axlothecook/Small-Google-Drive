@@ -8,7 +8,7 @@ const publicRouter = require('./routes/publicRouter');
 require('dotenv').config();
 const passport = require("passport");
 const expressSession = require("express-session");
-
+const cors = require('cors');
 const { PrismaPg } = require('@prisma/adapter-pg'); 
 const { PrismaClient } = require('./generated/prisma/client');
 const { PrismaSessionStore } = require('@quixo3/prisma-session-store');
@@ -17,6 +17,7 @@ const connectionString = `${process.env.DATABASE_URL}`;
 const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
+app.use(cors());
 app.use(morgan('dev'));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -55,12 +56,8 @@ app.use('/',
 );
 
 app.use((err, req, res, next) => {
-  const status = err.statusCode || 500;
+  const status = err.statusCode || err.htttp_code || 500;
   res.status(status).render('err', { status,  msg: err.message });
-});
-
-app.use((req, res) => {
-  res.status(404).sendFile('/public/404.html', { root: __dirname });
 });
 
 const PORT = process.env.NODE_ENV_PORT || 3005;

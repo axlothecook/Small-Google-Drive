@@ -5,7 +5,8 @@ const {
   validationResult,
   matchedData
 } = require('express-validator');
-var fs = require('fs');
+const supabase = require('../supabase');
+const { decode }  = require('base64-arraybuffer');
 
 const validateRename = [
   body('name')
@@ -33,7 +34,8 @@ const deleteChildFolders = async (arrayOfChildFolders) => {
     if (childFolder.files.length) {
       const files = childFolder.files;
       files.map(async(file) => {
-        await dltFileFunction(file, file.id);
+        const bucket = getBucket(file.type);
+        await dltFileFunction(file.id, file.newName, bucket);
       });
     };
 
@@ -71,17 +73,43 @@ const timeStampFileCreation = () => {
   return format(new Date(), 'MMMM dd, yyyy, hh:mm a');
 };
 
-const dltFileFunction = async (file, id) => {
-  let assetsPath;
+const generateName = (originalName) => {
+  let rename = originalName;
+  if (/\s/g.test(originalName)) rename = rename.replace(" ", "-");
+  const num = Math.floor(Math.random() * 100);
+  return num + '-' + rename;
+};
+
+const getBucket = (type) => {
+ if (type.includes('image')) {
+  return 'storage-images';
+ } else if (type.includes('video')) {
+  return 'storage-videos';
+ } else if (type.includes('audio')) {
+  return 'storage-audio';
+ } else if (type.includes('text')) {
+  return 'storage-text';
+ } else if (type.includes('font')) {
+  return 'storage-font';
+ } else return 'storage-application';
+};
+
+const dltFileFunction = async (id, name, bucket) => {
+  // console.log('file to delete:', id, name, bucket);
   try {
-    if(__dirname.includes('controllers')) {
-      const index = __dirname.indexOf('controllers');
-      assetsPath = `${__dirname.substring(0, index)}public\\user_files\\${file.newFileName}`;
+    const { data, error } = await supabase
+    .storage
+    .from(bucket)
+    .remove([name])
+    
+    if (error != null) {
+      console.error(error);
+      throw error;
     };
-    fs.unlink(assetsPath, function (err) {
-      if (err) console.error(`Error while unlinking a file. ${err}`);
-    });
-    await prisma.file.delete({ where: { id: parseInt(id) } });
+
+    console.log('result of deletion:');
+    console.log(data);
+    await prisma.file.delete({ where: { id: id } });
   } catch (err) {
     return err;
   };
@@ -230,7 +258,12 @@ const getDltFolder = async (req, res) => {
     });
 
     if (folderToDlt.childrenFolders.length) await deleteChildFolders(folderToDlt.childrenFolders);
-    if (folderToDlt.files) folderToDlt.files.map(async(childFile) => await dltFileFunction(childFile, childFile.id));
+    if (folderToDlt.files) {
+      folderToDlt.files.map(async(childFile) => {
+        const bucket = getBucket(childFile.type);
+        await dltFileFunction(childFile.id, childFile.newName, bucket);
+      });
+    };
 
     const id = folderToDlt.parentFolderId;
     await prisma.folder.delete({ where: { id: parseInt(req.params.id) } });
@@ -258,6 +291,7 @@ const getNewFile = (req, res) => {
 const postNewFile = async (req, res) => {
   try {
     if (req.err) {
+      console.log(req.err);
       return res.status(400).render('file-related/new', {
         title: 'New file | Personal Storage',
         id: req.params.id,
@@ -270,17 +304,42 @@ const postNewFile = async (req, res) => {
       });
     };
 
+    const file = req.file;
+    const fileBase64 = decode(file.buffer.toString('base64'));
+    const newName = generateName(file.originalname);
+    const bucket = getBucket(file.mimetype);
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .upload(newName, fileBase64, {
+        contentType: file.mimetype,
+        cacheControl: '3600',
+        upsert: false,
+      });
+
+    if (error != null) {
+      console.error(error);
+      throw error;
+    };
+
+    const { data: obj } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(data.path);
+
+    console.log('data: ', data);
+
     let fileSize;
     if (req.file.size <= 1048576) {
       (req.file.size <= 1024) ? fileSize = `${req.file.size} B` : fileSize = `${(req.file.size / 1024).toFixed(2)} KB`;
     } else fileSize = `${(req.file.size / 1048576).toFixed(2)} MB`;
+
     if (req.params.id > 0) {
-      await prisma.file.create({
+      const newFile = await prisma.file.create({
         data: {
-          originalName: req.file.originalname,
-          type: req.file.mimetype,
+          originalName: file.originalname,
+          newName: newName,
+          type: file.mimetype,
           size: fileSize,
-          newFileName: req.file.filename,
+          url: obj.publicUrl,
           added: timeStampFileCreation(),
           authorId: req.session.passport.user.id,
           folderId: parseInt(req.params.id),
@@ -291,37 +350,47 @@ const postNewFile = async (req, res) => {
         where: { id: parseInt(req.params.id) },
         data: { numberOfFiles: { increment: 1 } },
       });
+
+      console.log('new file in folder:');
+      console.log(newFile);
       
       res.redirect(`/folders/${req.params.id}`);
 
     } else {
-      let results = await prisma.file.create({
+      const newFile = await prisma.file.create({
         data: {
-          originalName: req.file.originalname,
-          type: req.file.mimetype,
+          originalName: file.originalname,
+          newName: newName,
+          type: file.mimetype,
           size: fileSize,
-          newFileName: req.file.filename,
+          url: obj.publicUrl,
           added: timeStampFileCreation(),
           authorId: req.session.passport.user.id,
         }
       });
+
+      console.log('new file:');
+      console.log(newFile);
+
       res.redirect('/folders');
     };
   } catch (err) {
-    throw new Error(`Oopsie! Error occured while uploading a file. ${err}`);
+    throw new Error(`Oopsie! Error occured while uploading a file.`, err);
   };
 };
 
 const getViewFile = async (req, res) => {
   try {
     const file = await prisma.file.findUnique({ where: { id: parseInt(req.params.id) } });
+    // console.log('file from postgres:');
+    // console.log(file);
+
     res.render('file-related/view', {
       title: `${file.originalName} | Personal Storage`,
       file,
+      imgPath: file.type.includes('image') ? `url(${file.url})` : null,
       isPublic: false,
       linkRoute: `folders`,
-      imgURL: file.type.includes('image') ? `url(/user_files/${file.newFileName})` : null,
-      generalURL: `/user_files/${file.newFileName}`,
       folderId: file.folderId ? file.folderId : 0
     });
   } catch (err) {
@@ -331,18 +400,17 @@ const getViewFile = async (req, res) => {
 
 const getDltFile = async (req, res) => {
   try {
-    const fileToDlt = await prisma.file.findUnique({ where: { id: parseInt(req.params.id) } });
-    if (fileToDlt.folderId) {
+    const file = await prisma.file.findUnique({ where: { id: parseInt(req.params.id) } });
+    if (file.folderId) {
       await prisma.folder.update({
-        where: { id: fileToDlt.folderId },
+        where: { id: file.folderId },
         data: { numberOfFiles: { decrement: 1 } },
       });
     };
 
-    const id = fileToDlt.folderId;
-    await dltFileFunction(fileToDlt, req.params.id);
+    const id = file.folderId;
+    await dltFileFunction(file.id, file.newName, getBucket(file.type));
     id ? res.redirect(`/folders/${id}`) : res.redirect("/folders");
-
   } catch (err) {
     throw new Error(`Error when deleting a file. ${err}`);
   };

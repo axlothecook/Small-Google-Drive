@@ -376,8 +376,9 @@ fieldset div {
   display: flex;
   flex-direction: column;
   gap: .4rem;
-  height: 91%;
+  height: 42rem;
   overflow-y: auto;
+  scrollbar-color: var(--main-txt-clr) var(--main-bg-clr);
 }
 
 .table-items h3 {
@@ -405,6 +406,7 @@ fieldset div {
   backdrop-filter: blur(2.6px);
   border: 1px solid rgba(255, 255, 255, .65);
   padding: .5rem;
+  margin-right: 1rem;
   cursor: pointer;
 }
 
@@ -511,6 +513,7 @@ fieldset div {
 .empty-file-template {
   border: 1px solid #ccc;
   border-radius: 7px;
+  text-align: center;
 }
 
 .audio-url div {

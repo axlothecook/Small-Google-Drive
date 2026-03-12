@@ -94,7 +94,7 @@ const postSignUpForm = [
     try {
       const { username, password } = matchedData(req);
       const hashedPassword = await bcrypt.hash(password, 10);
-      const newUser = await prisma.user.create({
+      await prisma.user.create({
         data: {
           username: username,
           password: hashedPassword,

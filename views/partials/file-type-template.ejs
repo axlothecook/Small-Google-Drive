@@ -1,8 +1,8 @@
-<% if (imgURL) { %> 
-    <div class="file-template image-url" style="background-image: <%= imgURL %>"></div>
+<% if (type.includes('image')) { %> 
+    <div class="file-template image-url" style="background-image: <%= imgPath %>"></div>
 <% } else if (type.includes('audio')) { %>
     <div class="file-template audio-url">
-        <audio src="<%= generalURL %>" id="player"></audio>
+        <audio src="<%= url %>" id="player"></audio>
         <div> 
             <button onclick="document.getElementById('player').play()">
                 <%- include('../partials/svgs/audio/play') %>
@@ -19,7 +19,7 @@
         </div>
     </div>
 <% } else if (type.includes('pdf')) { %>
-    <iframe src="<%= generalURL %>#toolbar=0" class="file-template"></iframe>
+    <iframe src="<%= url %>#toolbar=0" class="file-template"></iframe>
 <% } else if (type.includes('word')) { %>
     <div class="file-template"><%- include('../partials/svgs/big-icons/word-icon') %></div>
 <% } else if (type.includes('presentation')) { %>
@@ -27,15 +27,15 @@
 <% } else if (type.includes('sheet') || name.includes('ods')) { %>
     <div class="file-template"><%- include('../partials/svgs/big-icons/excel-icon') %></div>
 <% } else if (type.includes('quicktime') || type.includes('avif')) { %>
-    <div class="file-template empty-file-template"> I don't know what I am :/</div>
+    <div class="file-template empty-file-template"> I am a type of video that cannot be displayed ;-;</div>
 <% } else if (type.includes('video')) { %>
-    <object data="<%= generalURL %>" class="file-template"></object>
+    <object data="<%= url %>" class="file-template"></object>
 <% } else if (name.includes('otf') || name.includes('ttf') || name.includes('woff') || name.includes('woff2')) { %>
     <div class="file-template"><%- include('../partials/svgs/big-icons/font-icon') %></div>
 <% } else if (type.includes('html') || type.includes('css') || type.includes('javascript')) { %>
-    <object data="<%= generalURL %>" class="file-template" style="background-color: #ccc;"></object>
+    <object data="<%= url %>" class="file-template" style="background-color: #ccc;"></object>
 <% } else if (type.includes('plain')) { %>
-    <iframe src="<%= generalURL %>#toolbar=0" class="file-template"></iframe>
+    <iframe src="<%= url %>#toolbar=0" class="file-template"></iframe>
 <% } else if (type.includes('zip')) { %>
     <div class="file-template"><%- include('../partials/svgs/small-icons/zip', { classSpec: 'big-file-icon' }) %></div>
 <% } else { %>

@@ -9,25 +9,9 @@ const myAuthenticatedMiddleware = (req, res, next) => {
   res.redirect('/auth/login');
 };
 
-const generateName = (originalName) => {
-  let rename = originalName;
-  for (let i = 0; i < rename.length; i++) {
-    if (/\s/g.test(originalName)) rename = rename.replace(" ", "-");
-  };
-  const num = Math.floor(Math.random() * 100);
-  return num + '-' + rename;
-};
-
-const fileStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'public/user_files');
-  },
-  filename: (req, file, cb) => {
-    cb(null, generateName(file.originalname));
-  }
-});
-
 const fileFilter = (req, file, cb) => {
+  console.log('filefilter');
+  console.log(file);
   ( file.mimetype === 'image/png' || 
     file.mimetype === 'image/jpg' || 
     file.mimetype === 'image/jpeg' ||
@@ -74,29 +58,35 @@ const fileFilter = (req, file, cb) => {
 const processingResults = (req, res, err) => {
   if (err instanceof multer.MulterError) {
     // A Multer error occurred when uploading.
+    // console.log('multer error');
+    // console.log(err);
     return err;
   } else if (err) {
     // An unknown error occurred when uploading.
+    // console.log('other error');
+    // console.log(err);
     return err;
   } else {
+    // console.log('is fine');
     // Everything went fine.
     return req.file;
   };
 };
 
+const storage = multer.memoryStorage();
+
 const uploadMiddleware = multer({ 
-  limits: { fieldNameSize: 80, fileSize: 53477376 },
   fileFilter: fileFilter,
-  storage: fileStorage, 
+  storage: storage, 
 }).single('file');
 
 function haltOnTimedout(req, res, next) {
   if (!req.timedout) next();
 };
 
-function saveFile (req, res, cb) {
+async function saveFile (req, res, cb) {
   let result;
-  uploadMiddleware(req, res, (err) => {
+  await uploadMiddleware(req, res, (err) => {
     result = processingResults(req, res, err);
   });
 
@@ -109,8 +99,10 @@ function saveFile (req, res, cb) {
     } else if (result) {
       err = null;
     } else err = result;
+    console.log('result:');
+    // console.log(result);
     cb(err, result);
-  }, 1000);
+  }, 3000);
 };
 
 indexRouter.get('/', myAuthenticatedMiddleware, indexController.getHomepage);
@@ -128,6 +120,7 @@ indexRouter.post('/:id/files/new',
   timeout('4s'), 
   haltOnTimedout, 
   function (req, res, next) {
+    console.log('in', req.params);
     saveFile(req, res, function (err, result) {
       if (err) return next(err);
       if (req.timedout) {
@@ -145,7 +138,6 @@ indexRouter.post('/:id/files/new',
 );
 
 indexRouter.get('/:id/files/:id', indexController.getViewFile);
-indexRouter.get('/:id/files/:id/download', indexController.getDltFile);
 indexRouter.get('/:id/files/:id/delete', indexController.getDltFile);
 
 module.exports = indexRouter;

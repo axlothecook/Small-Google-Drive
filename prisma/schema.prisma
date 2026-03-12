@@ -30,12 +30,13 @@ model Folder {
 
 model File {
   id            Int     @id @default(autoincrement())
-  originalName  String  
+  originalName  String
+  newName       String  
   type          String
   size          String
+  url           String  @unique
   numberOfFiles String  @default("---")
   added         String 
-  newFileName   String  @unique
   folder        Folder? @relation(fields: [folderId], references: [id])
   folderId      Int?
   author        User    @relation(fields: [authorId], references: [id])
