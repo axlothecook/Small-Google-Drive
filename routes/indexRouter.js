@@ -10,8 +10,6 @@ const myAuthenticatedMiddleware = (req, res, next) => {
 };
 
 const fileFilter = (req, file, cb) => {
-  console.log('filefilter');
-  console.log(file);
   ( file.mimetype === 'image/png' || 
     file.mimetype === 'image/jpg' || 
     file.mimetype === 'image/jpeg' ||
@@ -58,16 +56,11 @@ const fileFilter = (req, file, cb) => {
 const processingResults = (req, res, err) => {
   if (err instanceof multer.MulterError) {
     // A Multer error occurred when uploading.
-    // console.log('multer error');
-    // console.log(err);
     return err;
   } else if (err) {
     // An unknown error occurred when uploading.
-    // console.log('other error');
-    // console.log(err);
     return err;
   } else {
-    // console.log('is fine');
     // Everything went fine.
     return req.file;
   };
@@ -99,8 +92,6 @@ async function saveFile (req, res, cb) {
     } else if (result) {
       err = null;
     } else err = result;
-    console.log('result:');
-    // console.log(result);
     cb(err, result);
   }, 3000);
 };
@@ -120,7 +111,6 @@ indexRouter.post('/:id/files/new',
   timeout('4s'), 
   haltOnTimedout, 
   function (req, res, next) {
-    console.log('in', req.params);
     saveFile(req, res, function (err, result) {
       if (err) return next(err);
       if (req.timedout) {

@@ -95,20 +95,14 @@ const getBucket = (type) => {
 };
 
 const dltFileFunction = async (id, name, bucket) => {
-  // console.log('file to delete:', id, name, bucket);
   try {
     const { data, error } = await supabase
     .storage
     .from(bucket)
     .remove([name])
     
-    if (error != null) {
-      console.error(error);
-      throw error;
-    };
+    if (error != null) throw error;
 
-    console.log('result of deletion:');
-    console.log(data);
     await prisma.file.delete({ where: { id: id } });
   } catch (err) {
     return err;
@@ -291,7 +285,6 @@ const getNewFile = (req, res) => {
 const postNewFile = async (req, res) => {
   try {
     if (req.err) {
-      console.log(req.err);
       return res.status(400).render('file-related/new', {
         title: 'New file | Personal Storage',
         id: req.params.id,
@@ -316,16 +309,11 @@ const postNewFile = async (req, res) => {
         upsert: false,
       });
 
-    if (error != null) {
-      console.error(error);
-      throw error;
-    };
+    if (error != null) throw error;
 
     const { data: obj } = supabase.storage
       .from(bucket)
       .getPublicUrl(data.path);
-
-    console.log('data: ', data);
 
     let fileSize;
     if (req.file.size <= 1048576) {
@@ -350,9 +338,6 @@ const postNewFile = async (req, res) => {
         where: { id: parseInt(req.params.id) },
         data: { numberOfFiles: { increment: 1 } },
       });
-
-      console.log('new file in folder:');
-      console.log(newFile);
       
       res.redirect(`/folders/${req.params.id}`);
 
@@ -369,9 +354,6 @@ const postNewFile = async (req, res) => {
         }
       });
 
-      console.log('new file:');
-      console.log(newFile);
-
       res.redirect('/folders');
     };
   } catch (err) {
@@ -382,8 +364,6 @@ const postNewFile = async (req, res) => {
 const getViewFile = async (req, res) => {
   try {
     const file = await prisma.file.findUnique({ where: { id: parseInt(req.params.id) } });
-    // console.log('file from postgres:');
-    // console.log(file);
 
     res.render('file-related/view', {
       title: `${file.originalName} | Personal Storage`,
