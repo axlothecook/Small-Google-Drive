@@ -61,8 +61,7 @@ const getFile = async (req, res) => {
             file,
             linkRoute: `public/${req.params.link}`,
             isPublic: true,
-            // imgURL: file.type.includes('image') ? `url(/user_files/${file.newFileName})` : null,
-            // generalURL: `/user_files/${file.newFileName}`,
+            imgPath: file.type.includes('image') ? `url(${file.url})` : null,
             folderId: file.folderId
         });
 
