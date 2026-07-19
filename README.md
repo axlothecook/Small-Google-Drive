@@ -33,6 +33,7 @@ Two folders with same names can exist due to difference in identification given 
   <li>visitors with a valid share link can browse the folder without an account</li>
   <li>every uploaded file gets a random number added to its name, so two files with the same name never clash</li>
 </ul>
+<br />
 
 ## How storing files works
 The user needs an account to store anything: new users sign up first, returning users just log in. After that the server renders every page with EJS, keeps folder and file info, accounts and sessions in Postgres, and stores the files themselves on Supabase.
