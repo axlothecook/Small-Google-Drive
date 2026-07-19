@@ -34,12 +34,12 @@ Two folders with same names can exist due to difference in identification given 
   <li>every uploaded file gets a random number added to its name, so two files with the same name never clash</li>
 </ul>
 <br />
-<br />
 
 ## How storing files works
 The user needs an account to store anything: new users sign up first, returning users just log in. After that the server renders every page with EJS, keeps folder and file info, accounts and sessions in Postgres, and stores the files themselves on Supabase.
 
 ![image](https://github.com/user-attachments/assets/3ff66b34-5b91-465d-aa4a-fa44d1385949)
+<br />
 
 ## How the shared link works
 Anyone with a share link can open the folder without an account. The server first checks whether the link is still valid. If it expired, the visitor is turned away, and if not, they get a read-only view of the folder.
@@ -68,7 +68,8 @@ Anyone with a share link can open the folder without an account. The server firs
 [connect-timeout](https://github.com/expressjs/timeout#readme) for emitting a 'timeout' in routing middleware <br />
 [Supabase](https://supabase.com) for cloud file storage <br />
 [cors](https://www.npmjs.com/package/cors) for response headers <br />
-[dotenv](https://github.com/motdotla/dotenv) for loading secrets from the .env file <br />
+[dotenv](https://github.com/motdotla/dotenv) for loading secrets from the .env file 
+<br />
 
 # Found bugs
 ### During the project I found several bugs (3) in several 3rd party services, which include Multer, Cloudinary and Node js. Here's a list of each one.
