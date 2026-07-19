@@ -1,5 +1,5 @@
 # Small Google Drive
-## Small imitation of Google Drive that serves as a personal storage. 
+Small imitation of Google Drive that serves as a personal storage. 
 
 ## Tools & services used
 [Node.js](https://nodejs.org/en) for server hosting and management </br>
