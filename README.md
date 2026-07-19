@@ -40,6 +40,7 @@ The user needs an account to store anything: new users sign up first, returning 
 
 ![image](https://github.com/user-attachments/assets/3ff66b34-5b91-465d-aa4a-fa44d1385949)
 <br />
+<br />
 
 ## How the shared link works
 Anyone with a share link can open the folder without an account. The server first checks whether the link is still valid. If it expired, the visitor is turned away, and if not, they get a read-only view of the folder.
