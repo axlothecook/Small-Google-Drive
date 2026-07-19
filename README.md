@@ -71,6 +71,7 @@ Anyone with a share link can open the folder without an account. The server firs
 [cors](https://www.npmjs.com/package/cors) for response headers <br />
 [dotenv](https://github.com/motdotla/dotenv) for loading secrets from the .env file 
 <br />
+<br />
 
 ## Found bugs
 ### During the project I found several bugs (3) in several 3rd party services, which include Multer, Cloudinary and Node js. Here's a list of each one.
