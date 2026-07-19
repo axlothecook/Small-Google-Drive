@@ -33,7 +33,6 @@ Two folders with same names can exist due to difference in identification given 
   <li>visitors with a valid share link can browse the folder without an account</li>
   <li>every uploaded file gets a random number added to its name, so two files with the same name never clash</li>
 </ul>
-<br />
 
 ## How storing files works
 The user needs an account to store anything: new users sign up first, returning users just log in. After that the server renders every page with EJS, keeps folder and file info, accounts and sessions in Postgres, and stores the files themselves on Supabase.
@@ -71,23 +70,23 @@ Anyone with a share link can open the folder without an account. The server firs
 [dotenv](https://github.com/motdotla/dotenv) for loading secrets from the .env file 
 <br />
 
-# Found bugs
+## Found bugs
 ### During the project I found several bugs (3) in several 3rd party services, which include Multer, Cloudinary and Node js. Here's a list of each one.
 
-## [Multer bug](https://github.com/expressjs/multer/issues/562)
+### [Multer bug](https://github.com/expressjs/multer/issues/562)
 Setting limits property as a parameter when creating and initializing multer() does not work. According to multer docs, it's used to limit the file size and file name size, among other applicable limitations. However, when the file size or its name is over the limit, this parameter gets ignored and the file gets passed to another parameter (if set) and saved. I only used file size and file name size, so I do not know if this bug persists with other properties of the limit parameter, but I would assume so. Thus I developed my own solution in 'indexRouter.js' that revolves around async functions and a 3rd party solution that enables setTimeout in Nodejs ([connect-timeout](https://github.com/expressjs/timeout#readme)).
 
-## [Node js bug](https://github.com/openclaw/openclaw/issues/2873)
+### [Node js bug](https://github.com/openclaw/openclaw/issues/2873)
 <b>process.processTicksAndRejections</b> is a bug that occurs when a network fetch fails with an unhandled promise rejection', according to the issue linked in the title. In this project, it occurs randomly with file uploads and only during that action. And I cannot predict it. There is no specified error whenever it gets logged and the file still gets successfully uploaded, displayed, downloaded and deleted. 
 
-## [Cloudinary bug](https://support.cloudinary.com/hc/en-us/community/posts/360000340772-Large-upload-not-using-original-file-name-for-public-ID)
+### [Cloudinary bug](https://support.cloudinary.com/hc/en-us/community/posts/360000340772-Large-upload-not-using-original-file-name-for-public-ID)
 Context: <br />
 This is a cloud storage service I tried after which I swapped to Supabase. When uploading a file, the middleware creates a 'public_id' using a local folder name and the name of the file being uploaded. This by default with no customization, results in a encrypted string which is unique to every file. The important fact about this public_id is that it is used to retrieve, edit, download and delete the file from the storage. The service allows doing the same set of actions using other ways. But using this id was the most consistent one for this project. Now I wanted the uploaded file to retain its original name (before the upload). I did not want the name of my file to be a random string of characters when downloaded. Cloudinary itself has no native download functionality which is a big let down. The only way (without a front end framework) to download the file would be with its public_id being its name. Thus this derives the need to modify its download name. In doing so, the service provides an option that should aid this request. When uploading the file, developer can customize public_id by using 3 options. 1) 'use_filename' - if set to 'true', it shapes public_id to be like 'file_hhjhsds' - still partly being made of random characters. 2) 'unique_filename' - when used together with 1) should result in public_id being entirely file's original name, like 'frog.png', but instead results in just 'file'. This creates a problem where if two files with the same name are uploaded, the later one overrides the initial one. Thus the third option comes along: 3) 'overwrite'- when set to 'false' prevents file overwriting. <br />
 
 Bug: <br />
 The three options above do not work at all. The closest I came to a file retaining its name is 'file' which prevents any other file being entered due to having the same name. In the end, I could not provide a separate file name before downloading it - something Supabase does not just in browser (using 'a' html element) but in the server side as well (Node js) - but also while uploading it using the 3 options Cloudinary provides. Worst part is the developers don't seem to care, since the bug awareness was raised 8 years ago as of making this project.
 
-# Demo photos
+## Demo photos
 
 ### Login page
 ![image](https://github.com/user-attachments/assets/2992328c-a1d5-492c-a02c-75083e2e7102)
