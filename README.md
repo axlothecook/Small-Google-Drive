@@ -72,6 +72,7 @@ Anyone with a share link can open the folder without an account. The server firs
 [dotenv](https://github.com/motdotla/dotenv) for loading secrets from the .env file 
 <br />
 <br />
+<br />
 
 ## Found bugs
 ### During the project I found several bugs (3) in several 3rd party services, which include Multer, Cloudinary and Node js. Here's a list of each one.
@@ -88,6 +89,8 @@ This is a cloud storage service I tried after which I swapped to Supabase. When 
 
 Bug: <br />
 The three options above do not work at all. The closest I came to a file retaining its name is 'file' which prevents any other file being entered due to having the same name. In the end, I could not provide a separate file name before downloading it - something Supabase does not just in browser (using 'a' html element) but in the server side as well (Node js) - but also while uploading it using the 3 options Cloudinary provides. Worst part is the developers don't seem to care, since the bug awareness was raised 8 years ago as of making this project.
+<br />
+<br />
 
 ## Demo photos
 
