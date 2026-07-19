@@ -1,21 +1,26 @@
 # Small Google Drive
 Small imitation of Google Drive that serves as a personal storage. 
 <br />
+<br />
 
 ## What's the project's purpose?
 User is able to create an account and log in whenever. During his visit he can create, rename (update), delete and share folders with unauthenticated users. The user can also add, download and delete files and folders with folders and/or files within.
+<br />
 <br />
 
 ## How does a user share a folder?
 By clicking the 'Share' button on a folder, user is prompted to select the duration of the link during which link can be used and after which it expires. After the link is generated the user can copy it and share it with anyone. When used, the visitor will be brought to a version of the website showing shared folder's content while not needing the visitor to be authenticated.
 <br />
+<br />
 
 ## How does the project deal with the conflict of the user uploading multiple instances of the same file?
 Every file uploaded gets renamed, with a random generated number added to the name, therefore eliminating any possibility of naming conflict.
 <br />
+<br />
 
 ## Any conflict with folder naming?
 Two folders with same names can exist due to difference in identification given to each one.
+<br />
 <br />
 
 ## Features
@@ -29,6 +34,7 @@ Two folders with same names can exist due to difference in identification given 
   <li>every uploaded file gets a random number added to its name, so two files with the same name never clash</li>
 </ul>
 <br />
+<br />
 
 ## How storing files works
 The user needs an account to store anything: new users sign up first, returning users just log in. After that the server renders every page with EJS, keeps folder and file info, accounts and sessions in Postgres, and stores the files themselves on Supabase.
@@ -40,8 +46,9 @@ Anyone with a share link can open the folder without an account. The server firs
 
 ![image](https://github.com/user-attachments/assets/74c2749e-7e7a-49d0-a9e4-58d111bda4cf)
 
-
 <br />
+<br />
+
 ## Tools & services used
 [Node.js](https://nodejs.org/en) for server hosting and management <br />
 [Express](https://expressjs.com) as the web framework handling all the routes <br />
